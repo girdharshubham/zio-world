@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+
+	<title>reveal.js - Layout Helpers</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<link rel="stylesheet" href="../dist/reveal.css">
+	<link rel="stylesheet" href="../dist/theme/white.css" id="theme">
+	<link rel="stylesheet" href="../plugin/highlight/monokai.css">
+</head>
+
+<body>
+
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h1>ZIO-HTTP 🚀</h1>
+			</section>
+
+			<section>
+				<h1>🥁</h1>
+				<p>*drum roll*</p>
+			</section>
+
+			<section id="fit-text">
+				<img src="https://media.giphy.com/media/fSvqyvXn1M3btN8sDh/giphy.gif">
+				<h2>Request Streaming</h2>
+			</section>
+
+
+			<section>
+				Request Streaming 🔥
+				<pre>
+					<code class="scala" data-trim>
+						Response(data = HttpData.fromStream(req.bodyAsStream))
+					</code>
+				</pre>
+			</section>
+
+			<section>
+				Reach out to us on discord @ bit.ly/zhttp
+			</section>
+		</div>
+
+	</div>
+
+	<script src="../dist/reveal.js"></script>
+	<script src="../plugin/highlight/highlight.js"></script>
+	<script>
+		Reveal.initialize({
+			center: true,
+			hash: true,
+			plugins: [RevealHighlight]
+		});
+	</script>
+
+</body>
+
+</html>

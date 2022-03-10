@@ -2,9 +2,8 @@ package org.d11.zioworld.middleware
 import zhttp.http._
 import zhttp.http.middleware.HttpMiddleware
 import zhttp.service.Server
-import zio.clock.Clock
 import zio.duration.durationInt
-import zio.{system, ExitCode, UIO, URIO}
+import zio.{system, ExitCode, UIO, URIO, ZIO}
 
 object AppWithMiddleware extends zio.App {
   val app = Http.collectZIO[Request] {
@@ -12,13 +11,35 @@ object AppWithMiddleware extends zio.App {
     case Method.GET -> !! / "longrunning" => UIO(Response.text("took me a while")).delay(10.seconds)
   }
 
-  val auth: HttpMiddleware[Any, Nothing]                                              = ???
-  val timeout: Middleware[Any with Clock, Throwable, Nothing, Any, Request, Response] = ???
-  val patchEnvironmentHeader: HttpMiddleware[system.System, SecurityException]        = ???
+  val auth = Middleware.basicAuth("shubham", "changeme")
+
+  val timeout = Middleware.timeout(1.seconds)
+
+  val customTimeout = Middleware
+    .identity
+    .race {
+      Middleware
+        .fromHttp(
+          Http
+            .status(Status.REQUEST_TIMEOUT)
+            .delay(2.seconds),
+        )
+        .mapZIO { response =>
+          ZIO.debug("Request took too long to process. Timing out") *>
+            ZIO(response)
+        }
+    }
+
+  val patchEnvironmentHeader = Middleware.patchZIO { _ =>
+    zio
+      .system
+      .envOrElse("ENV", "Dev")
+      .mapBoth(thr => Option(thr), env => Patch.addHeader("X-Environment", env))
+  }
 
   val middleware =
     auth ++
-      timeout ++
+      customTimeout ++
       patchEnvironmentHeader
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] =
