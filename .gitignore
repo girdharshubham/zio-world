@@ -9,3 +9,5 @@
 *.worksheet.sc
 metals.sbt
 target/
+
+node_modules/
