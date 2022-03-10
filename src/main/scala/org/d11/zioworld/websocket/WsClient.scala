@@ -9,7 +9,7 @@ object WsClient extends zio.App {
   private val env = EventLoopGroup.auto(8) ++ ChannelFactory.auto
   private val url = "ws://localhost:8090/subscriptions"
 
-  private val app: ZIO[zio.console.Console with EventLoopGroup with ChannelFactory,Throwable,Client.ClientResponse] =
+  private val app =
     Socket
       .collect[WebSocketFrame] {
         case fr @ WebSocketFrame.Text(_) => ZStream.succeed(fr)

@@ -9,11 +9,6 @@
     "test": "grunt test",
     "start": "grunt serve"
   },
-  "author": {
-    "name": "Hakim El Hattab",
-    "email": "hakim.elhattab@gmail.com",
-    "web": "http://hakim.se"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/hakimel/reveal.js.git"

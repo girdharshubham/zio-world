@@ -4,128 +4,298 @@
 <head>
 	<meta charset="utf-8">
 
-	<!-- Metadata to edit -->
 	<title>What's new in ZIO-HTTP</title>
-	<!-- /Metadata to edit -->
+	<meta name="author" content="Shubham Girdhar">
 
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-	<link rel="stylesheet" href="css/reveal.min.css">
-	<link rel="stylesheet" href="css/theme/sky.css" id="theme">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<!-- For syntax highlighting -->
-	<link rel="stylesheet" href="lib/css/zenburn.css">
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/black.css" id="theme">
 
-	<!-- If the query includes 'print-pdf', include the PDF print sheet -->
-	<script>
-		if (window.location.search.match(/print-pdf/gi)) {
-			var link = document.createElement('link');
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = 'css/print/pdf.css';
-			document.getElementsByTagName('head')[0].appendChild(link);
-		}
-	</script>
 
-	<!--[if lt IE 9]>
-		<script src="lib/js/html5shiv.js"></script>
-		<![endif]-->
+	<!-- Theme used for syntax highlighting of code -->
+	<link rel="stylesheet" href="plugin/highlight/vscode.css">
 </head>
 
 <body>
 
 	<div class="reveal">
-		<div class="slide">
+
+
+		<!-- Any section element inside of this container is displayed as a slide -->
+		<div class="slides">
 			<section>
-				<h1>ZIO-HTTP 🚀</h1>
+				<p>What's new in ZIO-HTTP 🚀</p>
 			</section>
 
 			<section>
-				<h2>WebSocket Client Support</h2>
+				<p>Dream11's Giter8 template for ZIO-HTTP</p>
+				<pre data-id="code-animation">
+					<code data-trim >
+						$ sbt new dream11/zio-http.g8
+					</code>
+				</pre>
 			</section>
 
 			<section>
-				<h3>Socket</h3>
-				<img src="img/socket.png" alt="Socket" />
-			</section>
+				<section>
+					<p>WebSocket Client Support</p>
+				</section>
 
-			<section>
-				<h3>SocketApp</h3>
-				<img src="img/socketapp.png" alt="SocketApp" />
-			</section>
+				<section data-auto-animate>
+					<p data-id="code-title">Socket</p>
+					<pre data-id="code-animation"><code class="scala" data-trim data-line-numbers>
+						sealed trait Socket[-R, +E, -A, +B]
+						</code></pre>
+				</section>
 
-			<section>
-				<h3>Creating a SocketApp</h3>
-				<img src="img/create-socketapp.png" alt="Creating a SocketApp" />
-			</section>
-
-			<section>
-				<img src="https://media.giphy.com/media/NS7gPxeumewkWDOIxi/giphy.gif" alt="Pokemon Socket" />
-				<p>But that's just plain old SocketApp, how do I use it to connect to a WebSocket server?</p>
-			</section>
-
-			<section>
-				<h3>SIMPLE!</h3>
-				<img src="img/client-socket-app.png" alt="Client SocketApp" />
-			</section>
-
-			<section>
-				<h1>🥁</h1>
-				<p>*drum roll*</p>
-			</section>
-
-			<section id="fit-text">
-				<img src="https://media.giphy.com/media/fSvqyvXn1M3btN8sDh/giphy.gif" />
-				<h2>Request Streaming</h2>
-			</section>
-
-			<section>
-				Request Streaming 🔥
-				<pre>
-						<code class="scala">
-							Response(data = HttpData.fromStream(req.bodyAsStream))
+				<section data-auto-animate id="fit-text">
+					<p data-id="code-title">SocketApp</p>
+					<pre data-id="code-animation">
+						<code data-trim class="scala" data-line-numbers=>
+							<script type="text/template">
+								final case class SocketApp[-R](
+									timeout: Option[ZIO[R, Nothing, Any]] = None,
+									open: Option[Handle[R]] = None,
+									message: Option[Socket[R, Throwable, WebSocketFrame, WebSocketFrame]] = None,
+									error: Option[Throwable => ZIO[R, Nothing, Any]] = None,
+									close: Option[Connection => ZIO[R, Nothing, Any]] = None,
+									decoder: SocketDecoder = SocketDecoder.default,
+									protocol: SocketProtocol = SocketProtocol.default,
+								)
+							</script>
 						</code>
 					</pre>
+				</section>
+
+				<section>
+					<p>Creating a SocketApp</p>
+					<pre data-id="code-animation">
+						<code data-trim class="scala" data-line-numbers>
+							<script type="text/template">
+								private val app = Socket
+									.collect[WebSocketFrame] {
+										case fr @ WebSocketFrame.Text(_) => ZStream.succeed(fr)
+									}
+									.toSocketApp
+									.onOpen(Socket.succeed(WebSocketFrame.text("FOO")))
+									.onClose(cn => console.putStrLn(s"Closed: ${cn}").!)
+									.onError(thr => ZIO.die(thr))
+							</script>
+						</code>
+					</pre>
+				</section>
+
+				<section>
+					<img src="https://media.giphy.com/media/NS7gPxeumewkWDOIxi/giphy.gif" alt="Pokemon Socket" />
+					<p>But that's just plain old SocketApp, how do I use it to connect to a WebSocket server?</p>
+				</section>
+
+				<section>
+					<p>Simple!</p>
+					<pre data-id="code-animation">
+						<code data-trim class="scala" data-line-numbers="9">
+							<script type="text/template">
+								private val app = Socket
+									.collect[WebSocketFrame] {
+										case fr @ WebSocketFrame.Text(_) => ZStream.succeed(fr)
+									}
+									.toSocketApp
+									.onOpen(Socket.succeed(WebSocketFrame.text("FOO")))
+									.onClose(cn => console.putStrLn(s"Closed: ${cn}").!)
+									.onError(thr => ZIO.die(thr))
+									.connect(url)
+							</script>
+						</code>
+					</pre>
+				</section>
+
+			</section>
+
+			<section>
+				<section>
+					<p>HTML Templating</p>
+				</section>
+
+				<section>
+					<p>Simple!</p>
+					<pre data-id="code-animation">
+						<code data-trim class="scala" data-line-numbers>
+							<script type="text/template">
+								val template: Dom = html(
+									head(
+									  title("Hello, from ZIO-HTTP"),
+									),
+									body(
+									  div(
+										css := "container" :: "text-align-left" :: Nil,
+										h1("Hello, World"),
+									  ),
+									),
+								  )
+								  
+								private val app   = Http.html(template)
+							</script>
+						</code>
+					</pre>
+				</section>
+
+			</section>
+
+			<section>
+				<section>
+					<p>Middleware</p>
+				</section>
+				<section>
+					<p>Middleware</p>
+					<pre data-id="code-animation">
+						<code data-trim class="scala" data-line-numbers>
+							<script type="text/template">
+								trait Middleware[-R, +E, +AIn, -BIn, -AOut, +BOut]
+							</script>
+						</code>
+					</pre>
+				</section>
+				<section>
+					<p>HttpMiddleware</p>
+					<pre data-id="code-animation">
+						<code data-trim class="scala"  data-line-numbers>
+							<script type="text/template">
+								type HttpMiddleware[-R, +E] =
+									Middleware[R, E, Request, Response, Request, Response]
+							</script>
+						</code>
+					</pre>
+				</section>
+				<section>
+					<p>Middleware for timeout</p>
+					<pre data-id="code-animation">
+						<code data-trim class="scala"  data-line-numbers>
+							<script type="text/template">
+								val timeout = Middleware.timeout(1.seconds)
+							</script>
+						</code>
+					</pre>
+				</section>
+				<section>
+					<p>Middleware for basicAuth</p>
+					<pre data-id="code-animation">
+						<code data-trim class="scala"  data-line-numbers>
+							<script type="text/template">
+								val auth = Middleware.basicAuth("shubham", "changeme")
+							</script>
+						</code>
+					</pre>
+				</section>
+				<section>
+					<p>Middleware for Patching a Response</p>
+					<pre data-id="code-animation">
+						<code data-trim class="scala"  data-line-numbers>
+							<script type="text/template">
+								val patchEnvironmentHeader = Middleware.patchZIO { _ =>
+									zio
+									  .system
+									  .envOrElse("ENV", "Dev")
+									  .mapBoth(
+										thr => Option(thr),
+										env => Patch.addHeader("X-Environment", env),
+									  )
+								  }							
+							</script>
+						</code>
+					</pre>
+				</section>
+				<section>
+					<p>Create your own Middleware</p>
+					<pre data-id="code-animation">
+						<code data-trim class="scala"  data-line-numbers>
+							<script type="text/template">
+								val customTimeout = Middleware
+								.identity
+								.race {
+								  Middleware
+									.fromHttp(
+									  Http
+										.status(Status.REQUEST_TIMEOUT)
+										.delay(2.seconds),
+									)
+									.mapZIO { response =>
+									  ZIO.debug("Request took too long. Timing out") *>
+										ZIO(response)
+									}
+								}					
+							</script>
+						</code>
+					</pre>
+				</section>
+			</section>
+
+			<section>
+				<section>
+					<p>One of the most requested features</p>
+				</section>
+				<section>
+					<p>*drum roll* 🥁</p>
+				</section>
+				<section id="fit-text">
+					<img src="https://media.giphy.com/media/fSvqyvXn1M3btN8sDh/giphy.gif" />
+					<p>Request Streaming</p>
+				</section>
+				<section>
+					Request Streaming 🔥
+					<pre data-id="code-animation">
+						<code data-trim class="scala"  data-line-numbers>
+							<script type="text/template">
+								private val app = Http.collect[Request] {
+									case req @ Method.POST -> !! / "echo" =>
+									  Response(data = HttpData.fromStream(req.bodyAsStream))
+								  }								
+							</script>
+						</code>
+					</pre>
+				</section>
+			</section>
+
+
+			<section>
+				<section>
+					<p>Thank you</p>
+				</section>
+				<section>
+					<img src="img/contributors.png" alt="contributors">
+				</section>
+
 			</section>
 
 			<section>
 				Reach out to us on discord @ bit.ly/zhttp
 			</section>
 
+
 		</div>
 	</div>
 
-	<script src="lib/js/head.min.js"></script>
-	<script src="js/reveal.min.js"></script>
-
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/zoom/zoom.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/search/search.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
 	<script>
 
-		// Full list of configuration options available here:
-		// https://github.com/hakimel/reveal.js#configuration
+		// Also available as an ES module, see:
+		// https://revealjs.com/initialization/
 		Reveal.initialize({
 			controls: true,
 			progress: true,
-			history: true,
 			center: true,
-
-			theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
-			transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
-
-			// Parallax scrolling
-			// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
-			// parallaxBackgroundSize: '2100px 900px',
-
-			// Optional libraries used to extend on reveal.js
-			dependencies: [
-				{ src: 'lib/js/classList.js', condition: function () { return !document.body.classList; } },
-				{ src: 'plugin/markdown/marked.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
-				{ src: 'plugin/markdown/markdown.js', condition: function () { return !!document.querySelector('[data-markdown]'); } },
-				{ src: 'plugin/highlight/highlight.js', async: true, callback: function () { hljs.initHighlightingOnLoad(); } },
-				{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function () { return !!document.body.classList; } },
-				{ src: 'plugin/notes/notes.js', async: true, condition: function () { return !!document.body.classList; } }
-			]
+			hash: true,
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight]
 		});
 
 	</script>

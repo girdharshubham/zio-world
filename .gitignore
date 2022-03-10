@@ -11,3 +11,4 @@ metals.sbt
 target/
 
 node_modules/
+.DS_STORE

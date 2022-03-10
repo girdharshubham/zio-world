@@ -25,16 +25,19 @@ object AppWithMiddleware extends zio.App {
             .delay(2.seconds),
         )
         .mapZIO { response =>
-          ZIO.debug("Request took too long to process. Timing out") *>
+          ZIO.debug("Request took too long. Timing out") *>
             ZIO(response)
         }
     }
 
-  val patchEnvironmentHeader = Middleware.patchZIO { _ =>
+  val patchEnvironmentHeader: HttpMiddleware[zio.system.System,SecurityException] = Middleware.patchZIO { _ =>
     zio
       .system
       .envOrElse("ENV", "Dev")
-      .mapBoth(thr => Option(thr), env => Patch.addHeader("X-Environment", env))
+      .mapBoth(
+        thr => Option(thr),
+        env => Patch.addHeader("X-Environment", env),
+      )
   }
 
   val middleware =

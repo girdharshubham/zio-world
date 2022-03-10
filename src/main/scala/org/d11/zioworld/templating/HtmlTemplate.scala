@@ -16,7 +16,8 @@ object HtmlTemplate extends zio.App {
       ),
     ),
   )
-  private val app   = Http.html(template.encode)
+
+  private val app   = Http.html(template)
 
   override def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = {
     for {
