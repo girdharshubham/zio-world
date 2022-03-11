@@ -128,19 +128,19 @@
 				<section>
 					<p>Simple!</p>
 					<pre data-id="code-animation">
-						<code data-trim class="scala" data-line-numbers>
+						<code data-trim class="scala" data-line-numbers="1-11|13">
 							<script type="text/template">
 								val template: Dom = html(
 									head(
 									  title("Hello, from ZIO-HTTP"),
 									),
 									body(
-									  div(
-										css := "container" :: "text-align-left" :: Nil,
-										h1("Hello, World"),
-									  ),
+									  	div(
+											css := "container" :: "text-align-left" :: Nil,
+											h1("Hello, World"),
+										),
 									),
-								  )
+								)
 								  
 								private val app   = Http.html(template)
 							</script>
