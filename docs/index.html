@@ -249,6 +249,29 @@
 					<p>Request Streaming</p>
 				</section>
 				<section>
+					<p>Before Request Streaming</p>
+					<pre>
+					<code data-trim class="scala"  data-line-numbers="3-5">
+						<script type="text/template">
+							private val app = Http.collectZIO[Request] {
+								case req @ Method.POST -> !! / "echo" =>
+									req.bodyAsString.map { body =>
+										Response(data = HttpData.fromString(body))
+									}
+							}							
+						</script>
+					</code>
+					</pre>
+					<p>Output</p>
+					<pre>
+						<code data-trim class="shell"  data-line-numbers="3-5">
+							<script type="text/template">
+								< HTTP/1.1 413 Request Entity Too Large						
+							</script>
+						</code>
+						</pre>
+				</section>
+				<section>
 					Request Streaming 🔥
 					<pre data-id="code-animation">
 						<code data-trim class="scala"  data-line-numbers>
