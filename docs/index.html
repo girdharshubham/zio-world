@@ -155,22 +155,21 @@
 					<p>Middleware</p>
 				</section>
 				<section>
-					<p>Middleware</p>
+					<p>What middleware used to be</p>
 					<pre data-id="code-animation">
-						<code data-trim class="scala" data-line-numbers>
+						<code data-trim class="scala"  data-line-numbers>
 							<script type="text/template">
-								trait Middleware[-R, +E, +AIn, -BIn, -AOut, +BOut]
+								sealed trait HttpMiddleware[-R, +E]
 							</script>
 						</code>
 					</pre>
 				</section>
 				<section>
-					<p>HttpMiddleware</p>
+					<p>What is it now</p>
 					<pre data-id="code-animation">
-						<code data-trim class="scala"  data-line-numbers>
+						<code data-trim class="scala" data-line-numbers>
 							<script type="text/template">
-								type HttpMiddleware[-R, +E] =
-									Middleware[R, E, Request, Response, Request, Response]
+								trait Middleware[-R, +E, +AIn, -BIn, -AOut, +BOut]
 							</script>
 						</code>
 					</pre>
